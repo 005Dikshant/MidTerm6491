@@ -45,15 +45,30 @@
 
 package org.jfree.chart.plot;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
+import java.util.function.Supplier;
 
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.MarkerChangeEvent;
+import org.jfree.chart.renderer.IntermediateAbstractRenderer;
+import org.jfree.data.Range;
+import org.jfree.text.TextUtilities;
 import org.jfree.ui.GradientPaintTransformer;
 import org.jfree.ui.LengthAdjustmentType;
+import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.util.ObjectUtilities;
 
 /**
@@ -231,5 +246,88 @@ public class IntervalMarker extends Marker implements Cloneable, Serializable {
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+    
+    public void getConcreateMarker(ValueAxis axis, Rectangle2D dataArea, Supplier<RectangleEdge> arg0,
+			Plot plot, PlotOrientation arg1, PlotOrientation arg2, Graphics2D g2,
+			IntermediateAbstractRenderer render) {
+		double start = this.getStartValue();
+		double end = this.getEndValue();
+		Range range = axis.getRange();
+		if (!(range.intersects(start, end))) {
+			return;
+		}
+		double start2d = axis.valueToJava2D(start, dataArea, arg0.get());
+		double end2d = axis.valueToJava2D(end, dataArea, arg0.get());
+		double low = Math.min(start2d, end2d);
+		double high = Math.max(start2d, end2d);
+		PlotOrientation orientation = plot.getOrientation();
+		Rectangle2D rect = null;
+		if (orientation == arg1) {
+			low = Math.max(low, dataArea.getMinY());
+			high = Math.min(high, dataArea.getMaxY());
+			rect = new Rectangle2D.Double(dataArea.getMinX(), low, dataArea.getWidth(), high - low);
+		} else if (orientation == arg2) {
+			low = Math.max(low, dataArea.getMinX());
+			high = Math.min(high, dataArea.getMaxX());
+			rect = new Rectangle2D.Double(low, dataArea.getMinY(), high - low, dataArea.getHeight());
+		}
+		final Composite savedComposite = g2.getComposite();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.getAlpha()));
+		Paint p = this.getPaint();
+		if (p instanceof GradientPaint) {
+			GradientPaint gp = (GradientPaint) p;
+			GradientPaintTransformer t = this.getGradientPaintTransformer();
+			if (t != null) {
+				gp = t.transform(gp, rect);
+			}
+			g2.setPaint(gp);
+		} else {
+			g2.setPaint(p);
+		}
+		g2.fill(rect);
+		if (this.getOutlinePaint() != null && this.getOutlineStroke() != null) {
+			if (orientation == arg2) {
+				Line2D line = new Line2D.Double();
+				double y0 = dataArea.getMinY();
+				double y1 = dataArea.getMaxY();
+				g2.setPaint(this.getOutlinePaint());
+				g2.setStroke(this.getOutlineStroke());
+				if (range.contains(start)) {
+					line.setLine(start2d, y0, start2d, y1);
+					g2.draw(line);
+				}
+				if (range.contains(end)) {
+					line.setLine(end2d, y0, end2d, y1);
+					g2.draw(line);
+				}
+			} else if (orientation == arg1) {
+				Line2D line = new Line2D.Double();
+				double x0 = dataArea.getMinX();
+				double x1 = dataArea.getMaxX();
+				g2.setPaint(this.getOutlinePaint());
+				g2.setStroke(this.getOutlineStroke());
+				if (range.contains(start)) {
+					line.setLine(x0, start2d, x1, start2d);
+					g2.draw(line);
+				}
+				if (range.contains(end)) {
+					line.setLine(x0, end2d, x1, end2d);
+					g2.draw(line);
+				}
+			}
+		}
+		String label = this.getLabel();
+		RectangleAnchor anchor = this.getLabelAnchor();
+		if (label != null) {
+			Font labelFont = this.getLabelFont();
+			g2.setFont(labelFont);
+			g2.setPaint(this.getLabelPaint());
+			Point2D coordinates = render.calculateMarkerTextAnchorPoint(orientation, rect, this.getLabelOffset(),
+					this.getLabelOffsetType(), anchor, arg1, arg2);
+			TextUtilities.drawAlignedString(label, g2, (float) coordinates.getX(), (float) coordinates.getY(),
+					this.getLabelTextAnchor());
+		}
+		g2.setComposite(savedComposite);
+	}
 
 }

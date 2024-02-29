@@ -45,10 +45,25 @@
 
 package org.jfree.chart.plot;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.function.Supplier;
 
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.MarkerChangeEvent;
+import org.jfree.chart.renderer.IntermediateAbstractRenderer;
+import org.jfree.data.Range;
+import org.jfree.text.TextUtilities;
+import org.jfree.ui.LengthAdjustmentType;
+import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.RectangleEdge;
 
 /**
  * A marker that represents a single value.  Markers can be added to plots to
@@ -154,4 +169,39 @@ public class ValueMarker extends Marker {
         }
         return true;
     }
+    
+    public void getConcreateMarker(ValueAxis axis, Rectangle2D dataArea, Supplier<RectangleEdge> arg0,
+			Plot plot, PlotOrientation arg1, PlotOrientation arg2, Graphics2D g2,
+			IntermediateAbstractRenderer render) {
+		double value = this.getValue();
+		Range range = axis.getRange();
+		if (!range.contains(value)) {
+			return;
+		}
+		double v = axis.valueToJava2D(value, dataArea, arg0.get());
+		PlotOrientation orientation = plot.getOrientation();
+		Line2D line = null;
+		if (orientation == arg1) {
+			line = new Line2D.Double(dataArea.getMinX(), v, dataArea.getMaxX(), v);
+		} else if (orientation == arg2) {
+			line = new Line2D.Double(v, dataArea.getMinY(), v, dataArea.getMaxY());
+		}
+		final Composite savedComposite = g2.getComposite();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.getAlpha()));
+		g2.setPaint(this.getPaint());
+		g2.setStroke(this.getStroke());
+		g2.draw(line);
+		String label = this.getLabel();
+		RectangleAnchor anchor = this.getLabelAnchor();
+		if (label != null) {
+			Font labelFont = this.getLabelFont();
+			g2.setFont(labelFont);
+			g2.setPaint(this.getLabelPaint());
+			Point2D coordinates = render.calculateMarkerTextAnchorPoint(orientation, line.getBounds2D(),
+					this.getLabelOffset(), LengthAdjustmentType.EXPAND, anchor, arg1, arg2);
+			TextUtilities.drawAlignedString(label, g2, (float) coordinates.getX(), (float) coordinates.getY(),
+					this.getLabelTextAnchor());
+		}
+		g2.setComposite(savedComposite);
+	}
 }
