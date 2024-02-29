@@ -130,6 +130,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.axis.CategoryAxis;
@@ -148,10 +150,13 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DrawingSupplier;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.Marker;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.AbstractRenderer;
+import org.jfree.chart.renderer.IntermediateAbstractRenderer;
 import org.jfree.chart.urls.CategoryURLGenerator;
 import org.jfree.chart.util.CloneUtils;
 import org.jfree.chart.util.ParamChecks;
@@ -175,7 +180,7 @@ import org.jfree.util.SortOrder;
  * {@link CategoryItemRenderer} you are not required to extend this class,
  * but it makes the job easier.
  */
-public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
+public abstract class AbstractCategoryItemRenderer extends IntermediateAbstractRenderer
         implements CategoryItemRenderer, Cloneable, PublicCloneable,
         Serializable {
 
@@ -961,156 +966,16 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
     public void drawRangeMarker(Graphics2D g2, CategoryPlot plot,
             ValueAxis axis, Marker marker, Rectangle2D dataArea) {
 
-        if (marker instanceof ValueMarker) {
-            ValueMarker vm = (ValueMarker) marker;
-            double value = vm.getValue();
-            Range range = axis.getRange();
-
-            if (!range.contains(value)) {
-                return;
-            }
-
-            final Composite savedComposite = g2.getComposite();
-            g2.setComposite(AlphaComposite.getInstance(
-                    AlphaComposite.SRC_OVER, marker.getAlpha()));
-
-            PlotOrientation orientation = plot.getOrientation();
-            double v = axis.valueToJava2D(value, dataArea,
-                    plot.getRangeAxisEdge());
-            Line2D line = null;
-            if (orientation == PlotOrientation.HORIZONTAL) {
-                line = new Line2D.Double(v, dataArea.getMinY(), v,
-                        dataArea.getMaxY());
-            }
-            else if (orientation == PlotOrientation.VERTICAL) {
-                line = new Line2D.Double(dataArea.getMinX(), v,
-                        dataArea.getMaxX(), v);
-            }
-
-            g2.setPaint(marker.getPaint());
-            g2.setStroke(marker.getStroke());
-            g2.draw(line);
-
-            String label = marker.getLabel();
-            RectangleAnchor anchor = marker.getLabelAnchor();
-            if (label != null) {
-                Font labelFont = marker.getLabelFont();
-                g2.setFont(labelFont);
-                Point2D coordinates = calculateRangeMarkerTextAnchorPoint(
-                        g2, orientation, dataArea, line.getBounds2D(),
-                        marker.getLabelOffset(), LengthAdjustmentType.EXPAND,
-                        anchor);
-                g2.setPaint(marker.getLabelPaint());
-                TextUtilities.drawAlignedString(label, g2, 
-                        (float) coordinates.getX(), (float) coordinates.getY(),
-                        marker.getLabelTextAnchor());
-            }
-            g2.setComposite(savedComposite);
-        }
-        else if (marker instanceof IntervalMarker) {
-            IntervalMarker im = (IntervalMarker) marker;
-            double start = im.getStartValue();
-            double end = im.getEndValue();
-            Range range = axis.getRange();
-            if (!(range.intersects(start, end))) {
-                return;
-            }
-
-            final Composite savedComposite = g2.getComposite();
-            g2.setComposite(AlphaComposite.getInstance(
-                    AlphaComposite.SRC_OVER, marker.getAlpha()));
-
-            double start2d = axis.valueToJava2D(start, dataArea,
-                    plot.getRangeAxisEdge());
-            double end2d = axis.valueToJava2D(end, dataArea,
-                    plot.getRangeAxisEdge());
-            double low = Math.min(start2d, end2d);
-            double high = Math.max(start2d, end2d);
-
-            PlotOrientation orientation = plot.getOrientation();
-            Rectangle2D rect = null;
-            if (orientation == PlotOrientation.HORIZONTAL) {
-                // clip left and right bounds to data area
-                low = Math.max(low, dataArea.getMinX());
-                high = Math.min(high, dataArea.getMaxX());
-                rect = new Rectangle2D.Double(low,
-                        dataArea.getMinY(), high - low,
-                        dataArea.getHeight());
-            }
-            else if (orientation == PlotOrientation.VERTICAL) {
-                // clip top and bottom bounds to data area
-                low = Math.max(low, dataArea.getMinY());
-                high = Math.min(high, dataArea.getMaxY());
-                rect = new Rectangle2D.Double(dataArea.getMinX(),
-                        low, dataArea.getWidth(),
-                        high - low);
-            }
-            Paint p = marker.getPaint();
-            if (p instanceof GradientPaint) {
-                GradientPaint gp = (GradientPaint) p;
-                GradientPaintTransformer t = im.getGradientPaintTransformer();
-                if (t != null) {
-                    gp = t.transform(gp, rect);
-                }
-                g2.setPaint(gp);
-            }
-            else {
-                g2.setPaint(p);
-            }
-            g2.fill(rect);
-
-            // now draw the outlines, if visible...
-            if (im.getOutlinePaint() != null && im.getOutlineStroke() != null) {
-                if (orientation == PlotOrientation.VERTICAL) {
-                    Line2D line = new Line2D.Double();
-                    double x0 = dataArea.getMinX();
-                    double x1 = dataArea.getMaxX();
-                    g2.setPaint(im.getOutlinePaint());
-                    g2.setStroke(im.getOutlineStroke());
-                    if (range.contains(start)) {
-                        line.setLine(x0, start2d, x1, start2d);
-                        g2.draw(line);
-                    }
-                    if (range.contains(end)) {
-                        line.setLine(x0, end2d, x1, end2d);
-                        g2.draw(line);
-                    }
-                }
-                else if (orientation == PlotOrientation.HORIZONTAL) {
-                    Line2D line = new Line2D.Double();
-                    double y0 = dataArea.getMinY();
-                    double y1 = dataArea.getMaxY();
-                    g2.setPaint(im.getOutlinePaint());
-                    g2.setStroke(im.getOutlineStroke());
-                    if (range.contains(start)) {
-                        line.setLine(start2d, y0, start2d, y1);
-                        g2.draw(line);
-                    }
-                    if (range.contains(end)) {
-                        line.setLine(end2d, y0, end2d, y1);
-                        g2.draw(line);
-                    }
-                }
-            }
-
-            String label = marker.getLabel();
-            RectangleAnchor anchor = marker.getLabelAnchor();
-            if (label != null) {
-                Font labelFont = marker.getLabelFont();
-                g2.setFont(labelFont);
-                g2.setPaint(marker.getLabelPaint());
-                Point2D coordinates = calculateRangeMarkerTextAnchorPoint(
-                        g2, orientation, dataArea, rect,
-                        marker.getLabelOffset(), marker.getLabelOffsetType(),
-                        anchor);
-                TextUtilities.drawAlignedString(label, g2,
-                        (float) coordinates.getX(), (float) coordinates.getY(),
-                        marker.getLabelTextAnchor());
-            }
-            g2.setComposite(savedComposite);
-        }
+    	drawMarker(marker, axis, plot, dataArea, g2, () -> plot.getRangeAxisEdge(),
+				PlotOrientation.VERTICAL, PlotOrientation.HORIZONTAL);
     }
 
+	protected void drawMarker(Marker marker, ValueAxis axis, Plot plot, Rectangle2D dataArea, Graphics2D g2,
+			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2) {
+		drawMarkerExtracted(marker, axis, dataArea, arg0, plot, arg1, arg2, g2);
+	}
+	
+    
     /**
      * Calculates the (x, y) coordinates for drawing the label for a marker on
      * the range axis.

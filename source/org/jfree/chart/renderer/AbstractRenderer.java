@@ -128,6 +128,9 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.util.CloneUtils;
 import org.jfree.chart.util.ParamChecks;
 import org.jfree.io.SerialUtilities;
+import org.jfree.ui.LengthAdjustmentType;
+import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.TextAnchor;
 import org.jfree.util.BooleanList;
 import org.jfree.util.ObjectUtilities;
@@ -4111,5 +4114,4 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
             fireChangeEvent();
         }
     }
-
 }
