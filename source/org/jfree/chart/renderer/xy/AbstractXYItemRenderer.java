@@ -1645,7 +1645,7 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
 		return RectangleAnchor.coordinates(anchorRect, anchor);
 	}
 
-	private void drawMarker(Marker marker, ValueAxis domainAxis, XYPlot plot, Rectangle2D dataArea, Graphics2D g2,
+	private void drawMarker(Marker marker, ValueAxis domainAxis, Plot plot, Rectangle2D dataArea, Graphics2D g2,
 			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2) {
 		if (marker instanceof ValueMarker) {
 			ValueMarker vm = (ValueMarker) marker;

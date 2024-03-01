@@ -150,6 +150,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DrawingSupplier;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.Marker;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.ValueMarker;
@@ -968,7 +969,7 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
 				PlotOrientation.VERTICAL, PlotOrientation.HORIZONTAL);
     }
 
-	protected void drawMarker(Marker marker, ValueAxis axis, CategoryPlot plot, Rectangle2D dataArea, Graphics2D g2,
+	protected void drawMarker(Marker marker, ValueAxis axis, Plot plot, Rectangle2D dataArea, Graphics2D g2,
 			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2) {
 		if (marker instanceof ValueMarker) {
             ValueMarker vm = (ValueMarker) marker;

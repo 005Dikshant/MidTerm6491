@@ -1541,5 +1541,9 @@ public abstract class Plot implements AxisChangeListener,
         return result;
 
     }
+    
+    public PlotOrientation getOrientation() {
+   	 return null;
+    }
 
 }
