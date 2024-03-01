@@ -1760,7 +1760,7 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
 			}
 			g2.setComposite(originalComposite);
 		}
-		return;
+		
 	}
 
 
