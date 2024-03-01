@@ -970,9 +970,11 @@ public abstract class AbstractCategoryItemRenderer extends IntermediateAbstractR
 				PlotOrientation.VERTICAL, PlotOrientation.HORIZONTAL);
     }
 
-	protected void drawMarker(Marker marker, ValueAxis axis, Plot plot, Rectangle2D dataArea, Graphics2D g2,
-			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2) {
-		drawMarkerExtracted(marker, axis, plot, dataArea, arg0, arg1, arg2, g2);
+	protected void drawMarker(Marker marker, ValueAxis axis, Plot plot, Rectangle2D dataArea, 
+			Graphics2D graphics,
+			Supplier<RectangleEdge> axisType, PlotOrientation orientationType1, 
+			PlotOrientation orientationType2) {
+		drawMarkerExtracted(marker, axis, plot, dataArea, axisType, orientationType1, orientationType2, graphics);
 	}
 
     /**

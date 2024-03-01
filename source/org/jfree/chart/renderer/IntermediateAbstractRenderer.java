@@ -32,12 +32,12 @@ public abstract class IntermediateAbstractRenderer extends AbstractRenderer {
 
 	public Point2D calculateMarkerTextAnchorPoint(PlotOrientation orientation, Rectangle2D markerArea,
 			RectangleInsets markerOffset, LengthAdjustmentType labelOffsetType, RectangleAnchor anchor,
-			PlotOrientation arg0, PlotOrientation arg1) {
+			PlotOrientation orientationType1, PlotOrientation orientationType2) {
 		Rectangle2D anchorRect = null;
-		if (orientation == arg0) {
+		if (orientation == orientationType1) {
 			anchorRect = markerOffset.createAdjustedRectangle(markerArea, LengthAdjustmentType.CONTRACT,
 					labelOffsetType);
-		} else if (orientation == arg1) {
+		} else if (orientation == orientationType2) {
 			anchorRect = markerOffset.createAdjustedRectangle(markerArea, labelOffsetType,
 					LengthAdjustmentType.CONTRACT);
 		}
@@ -45,9 +45,10 @@ public abstract class IntermediateAbstractRenderer extends AbstractRenderer {
 	}
 
 	protected void drawMarkerExtracted(Marker marker, ValueAxis axis, Plot plot, Rectangle2D dataArea,
-			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2, Graphics2D g2) {
+			Supplier<RectangleEdge> axisType, PlotOrientation orientationType1, 
+			PlotOrientation orientationType2, Graphics2D graphics) {
 		
-		marker.getConcreateMarker(axis, plot, dataArea, arg0, arg1, arg2, g2,this);
+		marker.getConcreateMarker(axis, plot, dataArea, axisType, orientationType1, orientationType2, graphics,this);
 		
 	}
 

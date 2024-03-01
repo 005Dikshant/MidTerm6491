@@ -248,31 +248,31 @@ public class IntervalMarker extends Marker implements Cloneable, Serializable {
     }
     
     public void getConcreateMarker(ValueAxis axis, Plot plot, Rectangle2D dataArea,
-			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2, 
-			Graphics2D g2, IntermediateAbstractRenderer render) {
+			Supplier<RectangleEdge> axisType, PlotOrientation orientationType1, PlotOrientation orientationType2, 
+			Graphics2D graphics, IntermediateAbstractRenderer render) {
 		double start = this.getStartValue();
 		double end = this.getEndValue();
 		Range range = axis.getRange();
 		if (!(range.intersects(start, end))) {
 			return;
 		}
-		double start2d = axis.valueToJava2D(start, dataArea, arg0.get());
-		double end2d = axis.valueToJava2D(end, dataArea, arg0.get());
+		double start2d = axis.valueToJava2D(start, dataArea, axisType.get());
+		double end2d = axis.valueToJava2D(end, dataArea, axisType.get());
 		double low = Math.min(start2d, end2d);
 		double high = Math.max(start2d, end2d);
 		PlotOrientation orientation = plot.getOrientation();
 		Rectangle2D rect = null;
-		if (orientation == arg1) {
+		if (orientation == orientationType1) {
 			low = Math.max(low, dataArea.getMinY());
 			high = Math.min(high, dataArea.getMaxY());
 			rect = new Rectangle2D.Double(dataArea.getMinX(), low, dataArea.getWidth(), high - low);
-		} else if (orientation == arg2) {
+		} else if (orientation == orientationType2) {
 			low = Math.max(low, dataArea.getMinX());
 			high = Math.min(high, dataArea.getMaxX());
 			rect = new Rectangle2D.Double(low, dataArea.getMinY(), high - low, dataArea.getHeight());
 		}
-		final Composite savedComposite = g2.getComposite();
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.getAlpha()));
+		final Composite savedComposite = graphics.getComposite();
+		graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.getAlpha()));
 		Paint p = this.getPaint();
 		if (p instanceof GradientPaint) {
 			GradientPaint gp = (GradientPaint) p;
@@ -280,39 +280,39 @@ public class IntervalMarker extends Marker implements Cloneable, Serializable {
 			if (t != null) {
 				gp = t.transform(gp, rect);
 			}
-			g2.setPaint(gp);
+			graphics.setPaint(gp);
 		} else {
-			g2.setPaint(p);
+			graphics.setPaint(p);
 		}
-		g2.fill(rect);
+		graphics.fill(rect);
 		if (this.getOutlinePaint() != null && this.getOutlineStroke() != null) {
-			if (orientation == arg2) {
+			if (orientation == orientationType2) {
 				Line2D line = new Line2D.Double();
 				double y0 = dataArea.getMinY();
 				double y1 = dataArea.getMaxY();
-				g2.setPaint(this.getOutlinePaint());
-				g2.setStroke(this.getOutlineStroke());
+				graphics.setPaint(this.getOutlinePaint());
+				graphics.setStroke(this.getOutlineStroke());
 				if (range.contains(start)) {
 					line.setLine(start2d, y0, start2d, y1);
-					g2.draw(line);
+					graphics.draw(line);
 				}
 				if (range.contains(end)) {
 					line.setLine(end2d, y0, end2d, y1);
-					g2.draw(line);
+					graphics.draw(line);
 				}
-			} else if (orientation == arg1) {
+			} else if (orientation == orientationType1) {
 				Line2D line = new Line2D.Double();
 				double x0 = dataArea.getMinX();
 				double x1 = dataArea.getMaxX();
-				g2.setPaint(this.getOutlinePaint());
-				g2.setStroke(this.getOutlineStroke());
+				graphics.setPaint(this.getOutlinePaint());
+				graphics.setStroke(this.getOutlineStroke());
 				if (range.contains(start)) {
 					line.setLine(x0, start2d, x1, start2d);
-					g2.draw(line);
+					graphics.draw(line);
 				}
 				if (range.contains(end)) {
 					line.setLine(x0, end2d, x1, end2d);
-					g2.draw(line);
+					graphics.draw(line);
 				}
 			}
 		}
@@ -320,14 +320,14 @@ public class IntervalMarker extends Marker implements Cloneable, Serializable {
 		RectangleAnchor anchor = this.getLabelAnchor();
 		if (label != null) {
 			Font labelFont = this.getLabelFont();
-			g2.setFont(labelFont);
-			g2.setPaint(this.getLabelPaint());
+			graphics.setFont(labelFont);
+			graphics.setPaint(this.getLabelPaint());
 			Point2D coordinates = render.calculateMarkerTextAnchorPoint(orientation, rect, this.getLabelOffset(),
-					this.getLabelOffsetType(), anchor, arg1, arg2);
-			TextUtilities.drawAlignedString(label, g2, (float) coordinates.getX(), (float) coordinates.getY(),
+					this.getLabelOffsetType(), anchor, orientationType1, orientationType2);
+			TextUtilities.drawAlignedString(label, graphics, (float) coordinates.getX(), (float) coordinates.getY(),
 					this.getLabelTextAnchor());
 		}
-		g2.setComposite(savedComposite);
+		graphics.setComposite(savedComposite);
 	}
 
 }

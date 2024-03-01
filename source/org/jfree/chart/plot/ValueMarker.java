@@ -171,37 +171,37 @@ public class ValueMarker extends Marker {
     }
     
     public void getConcreateMarker(ValueAxis axis, Plot plot, Rectangle2D dataArea,
-			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2, 
-			Graphics2D g2, IntermediateAbstractRenderer render) {
+			Supplier<RectangleEdge> axisType, PlotOrientation orientationType1, PlotOrientation orientationType2, 
+			Graphics2D graphics, IntermediateAbstractRenderer render) {
 		double value = this.getValue();
 		Range range = axis.getRange();
 		if (!range.contains(value)) {
 			return;
 		}
 		PlotOrientation orientation = plot.getOrientation();
-		double v = axis.valueToJava2D(value, dataArea, arg0.get());
+		double v = axis.valueToJava2D(value, dataArea, axisType.get());
 		Line2D line = null;
-		if (orientation == arg1) {
+		if (orientation == orientationType1) {
 			line = new Line2D.Double(dataArea.getMinX(), v, dataArea.getMaxX(), v);
-		} else if (orientation == arg2) {
+		} else if (orientation == orientationType2) {
 			line = new Line2D.Double(v, dataArea.getMinY(), v, dataArea.getMaxY());
 		}
-		final Composite savedComposite = g2.getComposite();
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.getAlpha()));
-		g2.setPaint(this.getPaint());
-		g2.setStroke(this.getStroke());
-		g2.draw(line);
+		final Composite savedComposite = graphics.getComposite();
+		graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.getAlpha()));
+		graphics.setPaint(this.getPaint());
+		graphics.setStroke(this.getStroke());
+		graphics.draw(line);
 		String label = this.getLabel();
 		RectangleAnchor anchor = this.getLabelAnchor();
 		if (label != null) {
 			Font labelFont = this.getLabelFont();
-			g2.setFont(labelFont);
-			g2.setPaint(this.getLabelPaint());
+			graphics.setFont(labelFont);
+			graphics.setPaint(this.getLabelPaint());
 			Point2D coordinates = render.calculateMarkerTextAnchorPoint(orientation, line.getBounds2D(),
-					this.getLabelOffset(), LengthAdjustmentType.EXPAND, anchor, arg1, arg2);
-			TextUtilities.drawAlignedString(label, g2, (float) coordinates.getX(), (float) coordinates.getY(),
+					this.getLabelOffset(), LengthAdjustmentType.EXPAND, anchor, orientationType1, orientationType2);
+			TextUtilities.drawAlignedString(label, graphics, (float) coordinates.getX(), (float) coordinates.getY(),
 					this.getLabelTextAnchor());
 		}
-		g2.setComposite(savedComposite);
+		graphics.setComposite(savedComposite);
 	}
 }

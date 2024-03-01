@@ -700,7 +700,7 @@ public abstract class Marker implements Cloneable, Serializable {
     }
     
     public void getConcreateMarker(ValueAxis axis, Plot plot, Rectangle2D dataArea,
-			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2, 
-			Graphics2D g2, IntermediateAbstractRenderer render) {}
+			Supplier<RectangleEdge> axisType, PlotOrientation orientationType1, PlotOrientation orientationType2, 
+			Graphics2D graphics, IntermediateAbstractRenderer render) {}
 
 }
