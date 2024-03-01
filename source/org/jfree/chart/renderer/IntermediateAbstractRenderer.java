@@ -48,36 +48,7 @@ public abstract class IntermediateAbstractRenderer extends AbstractRenderer {
 			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2, Graphics2D g2) {
 		if (marker instanceof ValueMarker) {
 			ValueMarker vm = (ValueMarker) marker;
-			double value = vm.getValue();
-			Range range = axis.getRange();
-			if (!range.contains(value)) {
-				return;
-			}
-			PlotOrientation orientation = plot.getOrientation();
-			double v = axis.valueToJava2D(value, dataArea, arg0.get());
-			Line2D line = null;
-			if (orientation == arg1) {
-				line = new Line2D.Double(dataArea.getMinX(), v, dataArea.getMaxX(), v);
-			} else if (orientation == arg2) {
-				line = new Line2D.Double(v, dataArea.getMinY(), v, dataArea.getMaxY());
-			}
-			final Composite savedComposite = g2.getComposite();
-			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, marker.getAlpha()));
-			g2.setPaint(marker.getPaint());
-			g2.setStroke(marker.getStroke());
-			g2.draw(line);
-			String label = marker.getLabel();
-			RectangleAnchor anchor = marker.getLabelAnchor();
-			if (label != null) {
-				Font labelFont = marker.getLabelFont();
-				g2.setFont(labelFont);
-				g2.setPaint(marker.getLabelPaint());
-				Point2D coordinates = calculateMarkerTextAnchorPoint(orientation, line.getBounds2D(),
-						marker.getLabelOffset(), LengthAdjustmentType.EXPAND, anchor, arg1, arg2);
-				TextUtilities.drawAlignedString(label, g2, (float) coordinates.getX(), (float) coordinates.getY(),
-						marker.getLabelTextAnchor());
-			}
-			g2.setComposite(savedComposite);
+			getConcreateMarker(marker, axis, plot, dataArea, arg0, arg1, arg2, g2, vm);
 		} else if (marker instanceof IntervalMarker) {
 			IntervalMarker im = (IntervalMarker) marker;
 			double start = im.getStartValue();
@@ -160,5 +131,39 @@ public abstract class IntermediateAbstractRenderer extends AbstractRenderer {
 			g2.setComposite(savedComposite);
 		}
 		return;
+	}
+
+	protected void getConcreateMarker(Marker marker, ValueAxis axis, Plot plot, Rectangle2D dataArea,
+			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2, Graphics2D g2, ValueMarker vm) {
+		double value = vm.getValue();
+		Range range = axis.getRange();
+		if (!range.contains(value)) {
+			return;
+		}
+		PlotOrientation orientation = plot.getOrientation();
+		double v = axis.valueToJava2D(value, dataArea, arg0.get());
+		Line2D line = null;
+		if (orientation == arg1) {
+			line = new Line2D.Double(dataArea.getMinX(), v, dataArea.getMaxX(), v);
+		} else if (orientation == arg2) {
+			line = new Line2D.Double(v, dataArea.getMinY(), v, dataArea.getMaxY());
+		}
+		final Composite savedComposite = g2.getComposite();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, marker.getAlpha()));
+		g2.setPaint(marker.getPaint());
+		g2.setStroke(marker.getStroke());
+		g2.draw(line);
+		String label = marker.getLabel();
+		RectangleAnchor anchor = marker.getLabelAnchor();
+		if (label != null) {
+			Font labelFont = marker.getLabelFont();
+			g2.setFont(labelFont);
+			g2.setPaint(marker.getLabelPaint());
+			Point2D coordinates = calculateMarkerTextAnchorPoint(orientation, line.getBounds2D(),
+					marker.getLabelOffset(), LengthAdjustmentType.EXPAND, anchor, arg1, arg2);
+			TextUtilities.drawAlignedString(label, g2, (float) coordinates.getX(), (float) coordinates.getY(),
+					marker.getLabelTextAnchor());
+		}
+		g2.setComposite(savedComposite);
 	}
 }
