@@ -979,7 +979,7 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
             }
             
             PlotOrientation orientation = plot.getOrientation();
-            double v = axis.valueToJava2D(value, dataArea,plot.getRangeAxisEdge());
+            double v = axis.valueToJava2D(value, dataArea,arg0.get());
             Line2D line = null;
             if (orientation == arg1) {
 				line = new Line2D.Double(dataArea.getMinX(), v, dataArea.getMaxX(), v);
@@ -1015,9 +1015,9 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
             }
 
             double start2d = axis.valueToJava2D(start, dataArea,
-                    plot.getRangeAxisEdge());
+                    arg0.get());
             double end2d = axis.valueToJava2D(end, dataArea,
-                    plot.getRangeAxisEdge());
+                    arg0.get());
             double low = Math.min(start2d, end2d);
             double high = Math.max(start2d, end2d);
 
