@@ -64,22 +64,28 @@ package org.jfree.chart.plot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.EventListener;
+import java.util.function.Supplier;
 
 import javax.swing.event.EventListenerList;
 
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.MarkerChangeEvent;
 import org.jfree.chart.event.MarkerChangeListener;
+import org.jfree.chart.renderer.IntermediateAbstractRenderer;
 import org.jfree.chart.util.ParamChecks;
 import org.jfree.io.SerialUtilities;
 import org.jfree.ui.LengthAdjustmentType;
 import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.TextAnchor;
 import org.jfree.util.ObjectUtilities;
@@ -692,5 +698,9 @@ public abstract class Marker implements Cloneable, Serializable {
         this.labelPaint = SerialUtilities.readPaint(stream);
         this.listenerList = new EventListenerList();
     }
+    
+    public void getConcreateMarker(ValueAxis axis, Plot plot, Rectangle2D dataArea,
+			Supplier<RectangleEdge> arg0, PlotOrientation arg1, PlotOrientation arg2, 
+			Graphics2D g2, IntermediateAbstractRenderer render) {}
 
 }
