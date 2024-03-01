@@ -961,7 +961,11 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
     public void drawRangeMarker(Graphics2D g2, CategoryPlot plot,
             ValueAxis axis, Marker marker, Rectangle2D dataArea) {
 
-        if (marker instanceof ValueMarker) {
+        drawMarker(g2, plot, axis, marker, dataArea);
+    }
+
+	protected void drawMarker(Graphics2D g2, CategoryPlot plot, ValueAxis axis, Marker marker, Rectangle2D dataArea) {
+		if (marker instanceof ValueMarker) {
             ValueMarker vm = (ValueMarker) marker;
             double value = vm.getValue();
             Range range = axis.getRange();
@@ -1109,7 +1113,7 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
             }
             g2.setComposite(savedComposite);
         }
-    }
+	}
 
     /**
      * Calculates the (x, y) coordinates for drawing the label for a marker on
@@ -1173,6 +1177,20 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
         return RectangleAnchor.coordinates(anchorRect, anchor);
 
     }
+    
+    private Point2D calculateMarkerTextAnchorPoint(PlotOrientation orientation, Rectangle2D markerArea,
+			RectangleInsets markerOffset, LengthAdjustmentType labelOffsetType, RectangleAnchor anchor,
+			PlotOrientation arg0, PlotOrientation arg1) {
+		Rectangle2D anchorRect = null;
+		if (orientation == arg0) {
+			anchorRect = markerOffset.createAdjustedRectangle(markerArea, LengthAdjustmentType.CONTRACT,
+					labelOffsetType);
+		} else if (orientation == arg1) {
+			anchorRect = markerOffset.createAdjustedRectangle(markerArea, labelOffsetType,
+					LengthAdjustmentType.CONTRACT);
+		}
+		return RectangleAnchor.coordinates(anchorRect, anchor);
+	}
 
     /**
      * Returns a legend item for a series.  This default implementation will
