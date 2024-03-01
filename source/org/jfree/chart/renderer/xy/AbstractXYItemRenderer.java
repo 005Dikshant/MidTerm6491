@@ -1261,16 +1261,8 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
             Rectangle2D markerArea, RectangleInsets markerOffset,
             LengthAdjustmentType labelOffsetType, RectangleAnchor anchor) {
 
-        Rectangle2D anchorRect = null;
-        if (orientation == PlotOrientation.HORIZONTAL) {
-            anchorRect = markerOffset.createAdjustedRectangle(markerArea,
-                    LengthAdjustmentType.CONTRACT, labelOffsetType);
-        }
-        else if (orientation == PlotOrientation.VERTICAL) {
-            anchorRect = markerOffset.createAdjustedRectangle(markerArea,
-                    labelOffsetType, LengthAdjustmentType.CONTRACT);
-        }
-        return RectangleAnchor.coordinates(anchorRect, anchor);
+        return calculateMarkerTextAnchorPoint(orientation, markerArea, markerOffset, labelOffsetType, anchor,
+						PlotOrientation.HORIZONTAL, PlotOrientation.VERTICAL);
 
     }
 
@@ -1453,16 +1445,8 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
            Rectangle2D markerArea, RectangleInsets markerOffset,
            LengthAdjustmentType labelOffsetForRange, RectangleAnchor anchor) {
 
-        Rectangle2D anchorRect = null;
-        if (orientation == PlotOrientation.HORIZONTAL) {
-            anchorRect = markerOffset.createAdjustedRectangle(markerArea,
-                    labelOffsetForRange, LengthAdjustmentType.CONTRACT);
-        }
-        else if (orientation == PlotOrientation.VERTICAL) {
-            anchorRect = markerOffset.createAdjustedRectangle(markerArea,
-                    LengthAdjustmentType.CONTRACT, labelOffsetForRange);
-        }
-        return RectangleAnchor.coordinates(anchorRect, anchor);
+        return calculateMarkerTextAnchorPoint(orientation, markerArea, markerOffset, labelOffsetForRange, anchor,
+					PlotOrientation.VERTICAL, PlotOrientation.HORIZONTAL);
 
     }
 
@@ -1935,6 +1919,20 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
         updateCrosshairValues(crosshairState, x, y, 0, 0, transX, transY,
                 orientation);
     }
+
+	private Point2D calculateMarkerTextAnchorPoint(PlotOrientation orientation, Rectangle2D markerArea,
+			RectangleInsets markerOffset, LengthAdjustmentType labelOffsetType, RectangleAnchor anchor,
+			PlotOrientation arg0, PlotOrientation arg1) {
+		Rectangle2D anchorRect = null;
+		if (orientation == arg0) {
+			anchorRect = markerOffset.createAdjustedRectangle(markerArea, LengthAdjustmentType.CONTRACT,
+					labelOffsetType);
+		} else if (orientation == arg1) {
+			anchorRect = markerOffset.createAdjustedRectangle(markerArea, labelOffsetType,
+					LengthAdjustmentType.CONTRACT);
+		}
+		return RectangleAnchor.coordinates(anchorRect, anchor);
+	}
 
 
 }
