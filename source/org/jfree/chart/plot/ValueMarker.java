@@ -179,12 +179,12 @@ public class ValueMarker extends Marker {
 			return;
 		}
 		PlotOrientation orientation = plot.getOrientation();
-		double v = axis.valueToJava2D(value, dataArea, axisType.get());
+		double val = axis.valueToJava2D(value, dataArea, axisType.get());
 		Line2D line = null;
 		if (orientation == orientationType1) {
-			line = new Line2D.Double(dataArea.getMinX(), v, dataArea.getMaxX(), v);
+			line = new Line2D.Double(dataArea.getMinX(), val, dataArea.getMaxX(), val);
 		} else if (orientation == orientationType2) {
-			line = new Line2D.Double(v, dataArea.getMinY(), v, dataArea.getMaxY());
+			line = new Line2D.Double(val, dataArea.getMinY(), val, dataArea.getMaxY());
 		}
 		final Composite savedComposite = graphics.getComposite();
 		graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.getAlpha()));
